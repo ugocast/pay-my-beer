@@ -4,22 +4,149 @@
 
 var seasonFixtureControllers = angular.module('seasonFixtureControllers', []);
 
-seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', 'SeasonFixture',
-  function($scope, SeasonFixture) {
-   SeasonFixture.query(function(data) {
-     $scope.fixtures = data.fixtures;  
-  });
-   $scope.items = [{'name':'TIMED'},{'name':'FINISHED'}];
-    /*$scope.orderProp = 'age';*/
+seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootScope', 'SeasonFixture',
+  function ($scope, $rootScope, seasonFixture) {
+        seasonFixture.query(function (data) {
+            $scope.fixtures = data.fixtures;
+        });
+        $scope.items = [{
+            'name': 'TIMED'
+        }, {
+            'name': 'FINISHED'
+        }];
+        /*$scope.orderProp = 'age';*/
   }]);
 
-/*phonecatControllers.controller('PhoneDetailCtrl', ['$scope', '$routeParams', 'Phone',
-  function($scope, $routeParams, Phone) {
-    $scope.phone = Phone.get({phoneId: $routeParams.phoneId}, function(phone) {
-      $scope.mainImageUrl = phone.images[0];
-    });
+seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$rootScope', '$routeParams', 'Fixture',
+  function ($scope, $rootScope, $routeParams, fixture) {
+        fixture.query({
+            fixtureId: $routeParams.fixtures
+        }, function (data) {
+            $scope.fixture = data.fixture;
+        });
 
-    $scope.setImage = function(imageUrl) {
-      $scope.mainImageUrl = imageUrl;
+        /*$scope.setImage = function(imageUrl) {
+          $scope.mainImageUrl = imageUrl;
+        }*/
+  }]);
+
+seasonFixtureControllers.controller('authenticationCtrl', [
+    '$scope',
+    '$rootScope',
+    '$timeout',
+    'Facebook',
+    function ($scope, $rootScope, $timeout, Facebook) {
+
+        // Define user empty data :/
+        $rootScope.user = {};
+
+        // Defining user logged status
+        $rootScope.logged = false;
+
+        // And some fancy flags to display messages upon user status change
+        $scope.byebye = false;
+        $scope.salutation = false;
+
+        /**
+         * Watch for Facebook to be ready.
+         * There's also the event that could be used
+         */
+        $scope.$watch(
+            function () {
+                return Facebook.isReady();
+            },
+            function (newVal) {
+                if (newVal)
+                    $scope.facebookReady = true;
+            }
+        );
+
+        var userIsConnected = false;
+
+        Facebook.getLoginStatus(function (response) {
+            if (response.status == 'connected') {
+                userIsConnected = true;
+                $scope.me();
+                $rootScope.facebookReady = true;
+                $rootScope.logged = true;
+                $scope.salutation = true;
+            }
+        });
+
+        /**
+         * IntentLogin
+         */
+        $scope.IntentLogin = function () {
+            if (!userIsConnected) {
+                $scope.login();
+            }
+        };
+
+        /**
+         * Login
+         */
+        $scope.login = function () {
+            Facebook.login(function (response) {
+                if (response.status == 'connected') {
+                    $rootScope.logged = true;
+                    $scope.me();
+                }
+
+            });
+        };
+
+        /**
+         * me
+         */
+        $scope.me = function () {
+            Facebook.api('/me', function (response) {
+                /**
+                 * Using $scope.$apply since this happens outside angular framework.
+                 */
+                $scope.$apply(function () {
+                    $rootScope.user = response;
+                });
+
+            });
+        };
+
+        /**
+         * Logout
+         */
+        $scope.logout = function () {
+            Facebook.logout(function () {
+                $scope.$apply(function () {
+                    $rootScope.user = {};
+                    $rootScope.logged = false;
+                });
+            });
+        }
+
+        /**
+         * Taking approach of Events :D
+         */
+        $scope.$on('Facebook:statusChange', function (ev, data) {
+            console.log('Status: ', data);
+            if (data.status == 'connected') {
+                $scope.$apply(function () {
+                    $scope.salutation = true;
+                    $scope.byebye = false;
+                });
+            } else {
+                $scope.$apply(function () {
+                    $scope.salutation = false;
+                    $scope.byebye = true;
+
+                    // Dismiss byebye message after two seconds
+                    $timeout(function () {
+                        $scope.byebye = false;
+                    }, 2000)
+                });
+            }
+
+
+        });
+
+
     }
-  }]);*/
+  ]);

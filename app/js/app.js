@@ -4,6 +4,7 @@
 
 var seasonFixtureApp = angular.module('seasonFixtureApp', [
   'ngRoute',
+  'facebook',
   'seasonFixtureAnimations',
   'seasonFixtureControllers',
   'seasonFixtureFilters',
@@ -11,17 +12,25 @@ var seasonFixtureApp = angular.module('seasonFixtureApp', [
 ]);
 
 seasonFixtureApp.config(['$routeProvider',
-  function($routeProvider) {
-    $routeProvider.
-      when('/seasonFixtures', {
-        templateUrl: 'partials/season-fixture-list.html',
-        controller: 'SeasonFixtureListCtrl'
-      }).
-      /*when('/phones/:phoneId', {
-        templateUrl: 'partials/phone-detail.html',
-        controller: 'PhoneDetailCtrl'
-      }).*/
-      otherwise({
-        redirectTo: '/seasonFixtures'
-      });
-  }]);
+  function ($routeProvider) {
+        $routeProvider.
+        when('/login', {
+            templateUrl: 'partials/facebook.html',
+            controller: 'authenticationCtrl'
+        }).
+        when('/soccerseasons', {
+            templateUrl: 'partials/season-fixture-list.html',
+            controller: 'SeasonFixtureListCtrl'
+        }).
+        when('/fixtures/:fixtures', {
+            templateUrl: 'partials/fixture-detail.html',
+            controller: 'SeasonFixtureDetailCtrl'
+        }).
+        otherwise({
+            redirectTo: '/login'
+        });
+  }]).config(function (FacebookProvider) {
+    // Set your appId through the setAppId method or
+    // use the shortcut in the initialize method directly.
+    FacebookProvider.init('803334449762938');
+});
