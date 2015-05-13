@@ -30,3 +30,23 @@ seasonFixtureServices.factory('SeasonFixture', ['$resource',
             }
         });
   }]);
+
+var payMyBeerServices = angular.module('payMyBeerServices', ['ngResource']);
+
+payMyBeerServices.factory('BusinessServiceList', ['$resource',
+  function ($resource) {
+        return $resource('json/business.json', {}, {
+            query: {
+                method: 'GET',
+                isArray: true
+            }
+        });
+  }]).factory('BusinessService', ['$resource',
+  function ($resource) {
+        return $resource('json/business/:businessName.json', {}, {
+            query: {
+                method: 'GET',
+                isArray: false
+            }
+        });
+  }]);

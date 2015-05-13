@@ -8,7 +8,9 @@ var seasonFixtureApp = angular.module('seasonFixtureApp', [
   'seasonFixtureAnimations',
   'seasonFixtureControllers',
   'seasonFixtureFilters',
-  'seasonFixtureServices'
+  'seasonFixtureServices',
+  'payMyBeerServices',
+  'uiGmapgoogle-maps'
 ]);
 
 seasonFixtureApp.config(['$routeProvider',
@@ -33,4 +35,10 @@ seasonFixtureApp.config(['$routeProvider',
     // Set your appId through the setAppId method or
     // use the shortcut in the initialize method directly.
     FacebookProvider.init('803334449762938');
-});
+}).config(
+    ['uiGmapGoogleMapApiProvider', function (GoogleMapApiProviders) {
+        GoogleMapApiProviders.configure({
+            china: true
+        });
+    }]
+);
