@@ -25,6 +25,8 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
 
         navigator.geolocation.getCurrentPosition(function (pos) {
 
+                var prevMarker;
+
                 $scope.$apply(function () {
                     $scope.map = {
                         center: {
@@ -35,7 +37,7 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
                         bounds: {}
                     };
 
-                    var createRandomMarker = function (i, bounds, idKey) {
+                    var createRandomMarker = function (i, value, bounds, idKey) {
                         var lat_min = bounds.southwest.latitude,
                             lat_range = bounds.northeast.latitude - lat_min,
                             lng_min = bounds.southwest.longitude,
@@ -50,11 +52,25 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
                         var ret = {
                             latitude: latitude,
                             longitude: longitude,
-                            title: 'm' + i
+                            title: value.name,
+                            show: false,
+                            value: value
+                        };
+                        ret.onClick = function () {
+                            if (prevMarker) {
+                                prevMarker.show = false;
+                            }
+                            ret.show = true;
+                            prevMarker = ret;
+                            $scope.myBusiness = ret.value;
+                            $scope.showBeer($scope.myBusiness);
+
+
                         };
                         ret[idKey] = i;
                         return ret;
                     };
+
                     $scope.randomMarkers = [];
                     // Get the bounds from the map once it's loaded
                     $scope.$watch(function () {
@@ -63,26 +79,14 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
                         // Only need to regenerate once
                         if (!ov.southwest && nv.southwest) {
                             var markers = [];
-                            for (var i = 0; i < 3; i++) {
-                                markers.push(createRandomMarker(i, $scope.map.bounds))
-                            }
+                            angular.forEach($scope.businessList, function (value, key) {
+                                markers.push(createRandomMarker(key, value, $scope.map.bounds))
+                            });
                             $scope.randomMarkers = markers;
                         }
                     }, true);
 
                 });
-
-
-                $scope.events = {
-                    events: {
-                        click: function (marker, eventName, args) {
-                            var lat = marker.getPosition().lat();
-                            var lon = marker.getPosition().lng();
-
-                            $scope.myLocation = 'Santiago';
-                        }
-                    }
-                }
 
             },
             function (error) {
