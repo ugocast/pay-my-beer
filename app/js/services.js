@@ -13,7 +13,8 @@ seasonFixtureServices.factory('SeasonFixture', ['$resource',
                     'X-Auth-Token': '8b6403cdb22b449c9a7d43e40e121ba3'
                 },
                 params: {
-                    soccerSeasonId: '362'
+                    soccerSeasonId: '357' //Seria A
+                        //                    soccerSeasonId: '362' //champions
                 },
                 isArray: false
             }
@@ -50,3 +51,83 @@ payMyBeerServices.factory('BusinessServiceList', ['$resource',
             }
         });
   }]);
+
+var authServices = angular.module('authorizationServices', ['ngResource']);
+
+authServices.factory('authorizationService', ['$q', '$rootScope', '$location', 'Facebook', function ($q, $rootScope, $location, Facebook) {
+    return {
+
+        permissionModel: {
+            permission: {},
+            isPermissionLoaded: false
+        },
+
+        permissionCheck: function () {
+
+            // we will return a promise .
+            var deferred = $q.defer();
+
+            //this is just to keep a pointer to parent scope from within promise scope.
+            var parentPointer = this;
+
+            deferred.promise.then(
+                Facebook.getLoginStatus(function (response) {
+
+                    if (response.status == 'connected') {
+                        parentPointer.getPermission(true, deferred);
+
+                    } else {
+                        parentPointer.getPermission(false, deferred);
+                    }
+
+                }));
+
+            return deferred.promise;
+        },
+
+        getPermission: function (isPermissionLoaded, deferred) {
+
+            if (!isPermissionLoaded) {
+                //If user does not have required access, 
+                //we will route the user to unauthorized access page
+                $location.path('/login');
+                //As there could be some delay when location change event happens, 
+                //we will keep a watch on $locationChangeSuccess event
+                // and would resolve promise when this event occurs.
+                $rootScope.$on('$locationChangeSuccess', function (next, current) {
+                    deferred.resolve();
+                });
+            } else {
+                deferred.resolve();
+            }
+        }
+    };
+}]);
+
+var facebookServices = angular.module('facebookServices', ['ngResource']);
+
+facebookServices.factory('facebookService', ['$resource', '$q', '$rootScope', '$location', 'Facebook', function ($resource, $q, $rootScope, $location, Facebook) {
+    return {
+        me: function () {
+            // we will return a promise .
+            var deferred = $q.defer();
+
+            deferred.promise.then(Facebook.api('/me', function (response) {
+                deferred.resolve(response);
+            }));
+
+            return deferred.promise;
+        },
+        friends: function () {
+            // we will return a promise .
+            var deferred = $q.defer();
+
+            deferred.promise.then(Facebook.api('/me/taggable_friends', function (response) {
+                deferred.resolve(response);
+            }));
+
+            return deferred.promise;
+        }
+
+    }
+}]);

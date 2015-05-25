@@ -4,8 +4,8 @@
 
 var seasonFixtureControllers = angular.module('seasonFixtureControllers', []);
 
-seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootScope', 'SeasonFixture',
-  function ($scope, $rootScope, seasonFixture) {
+seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootScope', 'SeasonFixture', 'facebookService',
+  function ($scope, $rootScope, seasonFixture, facebookService) {
         seasonFixture.query(function (data) {
             $scope.fixtures = data.fixtures;
         });
@@ -14,12 +14,30 @@ seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootSc
         }, {
             'name': 'FINISHED'
         }];
-        /*$scope.orderProp = 'age';*/
-  }]);
 
-seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$rootScope', '$routeParams', 'Fixture', 'BusinessServiceList', 'BusinessService',
+        facebookService.me().then(function (response) {
 
-  function ($scope, $rootScope, $routeParams, fixture, businessServiceList, businessService) {
+            $scope.user = response;
+
+        });
+
+                }]);
+
+seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$rootScope', '$routeParams', 'Fixture', 'BusinessServiceList', 'BusinessService', 'facebookService',
+
+  function ($scope, $rootScope, $routeParams, fixture, businessServiceList, businessService, facebookService) {
+
+        facebookService.me().then(function (response) {
+
+            $scope.user = response;
+
+        });
+
+        facebookService.friends().then(function (response) {
+
+            $scope.friends = response.data;
+
+        });
 
         $scope.businessList = businessServiceList.query();
 
@@ -33,15 +51,17 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
                             latitude: pos.coords.latitude,
                             longitude: pos.coords.longitude
                         },
-                        zoom: 12,
+                        zoom: 16,
                         bounds: {}
                     };
 
                     var createRandomMarker = function (i, value, bounds, idKey) {
+
                         var lat_min = bounds.southwest.latitude,
                             lat_range = bounds.northeast.latitude - lat_min,
                             lng_min = bounds.southwest.longitude,
                             lng_range = bounds.northeast.longitude - lng_min;
+
 
                         if (idKey == null) {
                             idKey = "id";
@@ -49,10 +69,11 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
 
                         var latitude = lat_min + (Math.random() * lat_range);
                         var longitude = lng_min + (Math.random() * lng_range);
+
                         var ret = {
                             latitude: latitude,
                             longitude: longitude,
-                            title: value.name,
+                            title: value.comercialName,
                             show: false,
                             value: value
                         };
@@ -110,24 +131,20 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
             });
         };
 
-}]);
+                }]);
 
 seasonFixtureControllers.controller('authenticationCtrl', [
     '$scope',
-    '$rootScope',
     '$timeout',
     'Facebook',
-    function ($scope, $rootScope, $timeout, Facebook) {
+    'facebookService',
+    function ($scope, $timeout, Facebook, facebookService) {
 
         // Define user empty data :/
-        $rootScope.user = {};
+        $scope.user = {};
 
         // Defining user logged status
-        $rootScope.logged = false;
-
-        // And some fancy flags to display messages upon user status change
-        $scope.byebye = false;
-        $scope.salutation = false;
+        $scope.logged = false;
 
         /**
          * Watch for Facebook to be ready.
@@ -149,12 +166,11 @@ seasonFixtureControllers.controller('authenticationCtrl', [
             if (response.status == 'connected') {
                 userIsConnected = true;
                 $scope.me();
-                $rootScope.facebookReady = true;
-                $rootScope.logged = true;
+                $scope.facebookReady = true;
+                $scope.logged = true;
                 $scope.salutation = true;
             }
         });
-
         /**
          * IntentLogin
          */
@@ -170,10 +186,12 @@ seasonFixtureControllers.controller('authenticationCtrl', [
         $scope.login = function () {
             Facebook.login(function (response) {
                 if (response.status == 'connected') {
-                    $rootScope.logged = true;
+                    $scope.logged = true;
                     $scope.me();
                 }
 
+            }, {
+                scope: 'user_friends'
             });
         };
 
@@ -182,11 +200,12 @@ seasonFixtureControllers.controller('authenticationCtrl', [
          */
         $scope.me = function () {
             Facebook.api('/me', function (response) {
+
                 /**
                  * Using $scope.$apply since this happens outside angular framework.
                  */
                 $scope.$apply(function () {
-                    $rootScope.user = response;
+                    $scope.user = response;
                 });
 
             });
@@ -198,37 +217,10 @@ seasonFixtureControllers.controller('authenticationCtrl', [
         $scope.logout = function () {
             Facebook.logout(function () {
                 $scope.$apply(function () {
-                    $rootScope.user = {};
-                    $rootScope.logged = false;
+                    $scope.user = {};
+                    $scope.logged = false;
                 });
             });
         }
-
-        /**
-         * Taking approach of Events :D
-         */
-        $scope.$on('Facebook:statusChange', function (ev, data) {
-            console.log('Status: ', data);
-            if (data.status == 'connected') {
-                $scope.$apply(function () {
-                    $scope.salutation = true;
-                    $scope.byebye = false;
-                });
-            } else {
-                $scope.$apply(function () {
-                    $scope.salutation = false;
-                    $scope.byebye = true;
-
-                    // Dismiss byebye message after two seconds
-                    $timeout(function () {
-                        $scope.byebye = false;
-                    }, 2000)
-                });
-            }
-
-
-        });
-
-
     }
   ]);
