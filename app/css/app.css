@@ -1,5 +1,52 @@
 /* app css stylesheet */
 
+body {
+    margin-top: 50px;
+    background-color: transparent;
+    /* Required margin for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+}
+/* Header Image Background - Change the URL below to your image path (example: ../images/background.jpg) */
+
+.full {
+    background: url('../img/background.png') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+.container {
+    background-color: transparent;
+}
+
+.view-container {
+    background-color: transparent;
+}
+
+.view-frame {
+    background-color: transparent;
+}
+
+.title-white {
+    color: white;
+}
+
+.panel-transparent {
+    background-color: transparent;
+}
+
+.panel-transparent .panel-heading {
+    background: rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+.panel-transparent .panel-body {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 4px;
+}
+
 .angular-google-map-container {
     height: 250px;
+    color: steelblue;
 }

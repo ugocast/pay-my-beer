@@ -1,51 +1,44 @@
-<!-- Fixed navbar -->
-<div class="page-header">
+<header>
+    <!-- Fixed navbar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header-left">
-                <span class="navbar-brand"> Pay My Beer</span>
-            </div>
+                <span class="navbar-brand">Pay My Beer</span>
+                <span class="navbar-brand "><img class="img-responsive" src="http://www.humm.cl/img/logo-Humm-head.png" alt="Humm" width="70"></span> </div>
             <div class="navbar-header navbar-right">
-                <span class="navbar-brand"><img  class="img-circle" ng-src="http://graph.facebook.com/{{user.id}}/picture?type=normal" alt="{{user.name}}" width="30" height="30"/><small> {{user.name}}</small></span>
+                <span class="navbar-brand"><img  class="img-circle" ng-src="http://graph.facebook.com/{{user.id}}/picture?type=normal" alt="{{user.name}}" width="30" height="30"/><small class="hidden-xs"> {{user.name}}</small></span>
             </div>
             <!--/.nav-collapse -->
         </div>
     </nav>
-</div>
+</header>
 <div class="container-fluid">
-    <div class="page-header">
-        <div class="row">
-            <div class="col-md-2">
-                <!--Sidebar content-->
+    <h4 class="title-white">Seleccionar partido : </h4>
+    <div class="panel panel-default panel-transparent">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <!--Sidebar content-->
 
-                Status:
-                <select ng-model="query.status">
-                    <option value="">All</option>
-                    <option ng-repeat="item in items" value="{{item.name}}">{{item.name}}</option>
-                </select>
+                    Status:
+                    <select ng-model="query.status">
+                        <option value="">All</option>
+                        <option ng-repeat="item in items" value="{{item.name}}">{{item.name}}</option>
+                    </select>
 
-            </div>
-            <div class="col-md-10">
+                </div>
+                <div class="col-md-10">
 
-                <div class="panel panel-default" ng-repeat="fixture in fixtures | filter:query:strict">
-                    <div class="panel-body">
-                        <p>{{fixture.date}}</p>
-                        <p>{{fixture.homeTeamName }} vs {{fixture.awayTeamName }}</p>
+                    <div class="panel panel-success panel-transparent" ng-repeat="fixture in fixtures | filter:query:strict">
+                        <div class="panel-body">
+                            <p>{{fixture.date}}</p>
+                            <p>{{fixture.homeTeamName }} vs {{fixture.awayTeamName }}</p>
 
-                        <a class="btn btn-lg btn-success" href="#/fixtures/{{fixture._links.self.href.split('/')[5]}}" role="button">Apostar</a>
+                            <a class="btn btn-lg btn-success" href="#/fixtures/{{fixture._links.self.href.split('/')[5]}}" role="button">Apostar</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<footer>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <p class="copyright text-muted small">Copyright &copy; Humm Co-Creation 2015. All Rights Reserved</p>
-            </div>
-        </div>
-    </div>
-</footer>
