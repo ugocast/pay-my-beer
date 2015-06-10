@@ -11,8 +11,10 @@ var seasonFixtureApp = angular.module('seasonFixtureApp', [
   'payMyBeerServices',
   'authorizationServices',
   'facebookServices',
-  'uiGmapgoogle-maps'
-//   'ngMaterial'
+  'uiGmapgoogle-maps',
+  'ngAnimate',
+  'ja.qr',
+  'ui.bootstrap'
 ]);
 
 seasonFixtureApp.config(['$routeProvider',

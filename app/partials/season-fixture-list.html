@@ -13,23 +13,36 @@
     </nav>
 </header>
 <div class="container-fluid">
-    <h4 class="title-white">Seleccionar partido : </h4>
+    <h4 class="title-white">Seleccionar partido </h4>
     <div class="panel panel-default panel-transparent">
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-2">
                     <!--Sidebar content-->
 
-                    Status:
-                    <select ng-model="query.status">
+                    Seleccionar campeonato :
+                    <!--<select ng-model="query.status">
                         <option value="">All</option>
                         <option ng-repeat="item in items" value="{{item.name}}">{{item.name}}</option>
+                    </select>-->
+
+
+                    <select ng-model="mySeason" ng-options="season.caption for season in seasons" ng-change="getFixtures(mySeason)">
+                        <option value="">-- choose --</option>
                     </select>
 
                 </div>
                 <div class="col-md-10">
+                    <div class="header clearfix">
+                        <h4 class="title-white"> {{mySeason.caption}}</h4>
+                        <small ng-show="mySeason">Equipos participantes : {{mySeason.numberOfTeams}}</small>
+                        <small ng-show="mySeason"> - Cantidad de partidos : {{mySeason.numberOfGames}}</small>
+                    </div>
 
-                    <div class="panel panel-success panel-transparent" ng-repeat="fixture in fixtures | filter:query:strict">
+                    <!-- <div class="panel panel-success panel-transparent" ng-repeat="fixture in fixtures | filter:query:strict">-->
+
+                    <p ng-show="loading" class="animate-show">Loading...</p>
+                    <div class="panel panel-success panel-transparent animate-show" ng-hide="loading" ng-show="loading" ng-repeat="fixture in fixtures">
                         <div class="panel-body">
                             <p>{{fixture.date}}</p>
                             <p>{{fixture.homeTeamName }} vs {{fixture.awayTeamName }}</p>

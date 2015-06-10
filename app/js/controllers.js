@@ -4,11 +4,13 @@
 
 var seasonFixtureControllers = angular.module('seasonFixtureControllers', []);
 
-seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootScope', 'SeasonFixture', 'facebookService',
-  function ($scope, $rootScope, seasonFixture, facebookService) {
-        seasonFixture.query(function (data) {
-            $scope.fixtures = data.fixtures;
+seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootScope', 'SeasonFixture', 'Seasons', 'facebookService',
+  function ($scope, $rootScope, seasonFixture, Seasons, facebookService) {
+
+        Seasons.query(function (data) {
+            $scope.seasons = data;
         });
+
         $scope.items = [{
             'name': 'TIMED'
         }, {
@@ -21,11 +23,28 @@ seasonFixtureControllers.controller('SeasonFixtureListCtrl', ['$scope', '$rootSc
 
         });
 
+        $scope.getFixtures = function (mySeason) {
+
+            $scope.loading = true;
+
+            seasonFixture.query({
+                    seasonId: mySeason._links.fixtures.href.split('/')[5]
+                },
+                function (data) {
+                    $scope.fixtures = data.fixtures;
+                    $scope.loading = false;
+                });
+        };
+
+
                 }]);
 
-seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$rootScope', '$routeParams', 'Fixture', 'BusinessServiceList', 'BusinessService', 'facebookService',
+seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', 'Fixture', 'BusinessServiceList', 'BusinessService', 'facebookService',
 
-  function ($scope, $rootScope, $routeParams, fixture, businessServiceList, businessService, facebookService) {
+  function ($scope, $rootScope, $routeParams, $modal, fixture, businessServiceList, businessService, facebookService) {
+
+
+        $scope.items = ['item1', 'item2', 'item3'];
 
         facebookService.me().then(function (response) {
 
@@ -131,14 +150,53 @@ seasonFixtureControllers.controller('SeasonFixtureDetailCtrl', ['$scope', '$root
             });
         };
 
+        $scope.openModalBeet = function (size) {
+
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'partials/modals/makeBeet.html',
+                controller: 'ModalBeetInstanceCtrl',
+                size: size,
+                resolve: {
+                    price: function () {
+                        return $scope.myBeer.price * $scope.numberOfBeer * 2;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+            }, function () {
+
+            });
+        };
+
                 }]);
+
+seasonFixtureControllers.controller('ModalBeetInstanceCtrl', function ($scope, $modalInstance, price) {
+
+    $scope.price = price;
+
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+
+    $scope.pay = function () {
+        $scope.paid = true;
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
 
 seasonFixtureControllers.controller('authenticationCtrl', [
     '$scope',
     '$timeout',
     'Facebook',
     'facebookService',
-    function ($scope, $timeout, Facebook, facebookService) {
+    '$routeParams',
+    function ($scope, $timeout, Facebook, facebookService, $routeParams) {
 
         // Define user empty data :/
         $scope.user = {};
